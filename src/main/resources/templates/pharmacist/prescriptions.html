@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Prescriptions')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<h3>Prescription Verification Queue</h3>
+<div th:if="${pending.empty}" class="alert alert-success">No prescriptions waiting for review.</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-6" th:each="r : ${pending}" th:with="p=${r.prescription}"><div class="card h-100"><div class="card-body">
+    <h5>Prescription <span th:text="'#' + ${p.id}"></span></h5>
+    <div>Patient: <strong th:text="${p.customer.fullName}"></strong></div>
+    <div>Doctor: <span th:text="${p.doctorName == null or p.doctorName.isEmpty()} ? 'not provided' : ${p.doctorName}"></span></div>
+    <div class="mb-2">Uploaded: <span th:text="${#temporals.format(p.uploadedAt,'dd MMM yyyy HH:mm')}"></span></div>
+    <a class="btn btn-sm btn-outline-primary mb-3" target="_blank" th:href="@{/files/prescriptions/{id}(id=${p.id})}">Open file</a>
+
+    <!-- What this prescription is being used to buy. Without it the pharmacist
+         would be approving a document without knowing the medicines or doses. -->
+    <div class="border rounded p-2 mb-3 bg-light" th:if="${r.order != null}">
+      <div class="small text-muted mb-1">Order <span th:text="'#' + ${r.order.id}"></span> is waiting on this prescription</div>
+      <table class="table table-sm mb-1">
+        <thead><tr><th>Medicine</th><th class="text-center">Qty</th><th class="text-end">Unit price</th></tr></thead>
+        <tbody>
+          <tr th:each="i : ${r.order.items}"
+              th:classappend="${i.medicine.prescriptionRequired} ? 'table-warning'">
+            <td>
+              <span th:text="${i.medicine.name}"></span>
+              <span class="badge bg-danger ms-1" th:if="${i.medicine.prescriptionRequired}">Rx</span>
+              <div class="small text-muted" th:text="${i.medicine.dosageForm}"></div>
+            </td>
+            <td class="text-center" th:text="${i.quantity}"></td>
+            <td class="text-end" th:text="${#numbers.formatDecimal(i.unitPrice,1,'COMMA',2,'POINT')}"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="small text-muted">Rows highlighted in yellow are the prescription-only medicines this approval authorises.</div>
+    </div>
+    <div class="alert alert-warning py-2 small" th:if="${r.order == null}">
+      No order is attached to this prescription yet. The customer uploaded it in advance.
+    </div>
+
+    <form method="post" th:action="@{/pharmacist/prescriptions/{id}/decision(id=${p.id})}">
+      <input name="note" class="form-control mb-2" maxlength="250" placeholder="Note (required when rejecting)">
+      <button class="btn btn-success btn-sm" name="approve" value="true">Approve</button>
+      <button class="btn btn-danger btn-sm" name="approve" value="false">Reject</button>
+    </form></div></div></div>
+</div>
+<h5>Recently reviewed</h5>
+<div class="table-responsive"><table class="table table-sm bg-white">
+  <thead><tr><th>#</th><th>Patient</th><th>Status</th><th>Note</th><th>Reviewed by</th></tr></thead>
+  <tbody><tr th:each="p : ${history}"><td th:text="${p.id}"></td><td th:text="${p.customer.fullName}"></td>
+    <td><span class="badge" th:classappend="${p.status.name() == 'APPROVED'} ? 'bg-success' : 'bg-danger'" th:text="${p.status}"></span></td>
+    <td th:text="${p.pharmacistNote}"></td><td th:text="${p.verifiedBy != null} ? ${p.verifiedBy.fullName}"></td></tr></tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

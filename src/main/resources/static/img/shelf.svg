@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400" fill="none" stroke="#1D2433" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <!-- back panel -->
+  <rect x="40" y="24" width="440" height="330" rx="16" fill="#fff"/>
+  <!-- pharmacy cross sign -->
+  <rect x="226" y="40" width="68" height="68" rx="14" fill="#FFC425"/>
+  <path d="M260 56v36M242 74h36" stroke-width="7"/>
+  <!-- shelves -->
+  <path d="M40 204h440M40 332h440" stroke-width="4"/>
+  <!-- top shelf items -->
+  <rect x="70" y="140" width="44" height="64" rx="6" fill="#FFC425"/><path d="M80 156h24M80 166h16"/>
+  <rect x="120" y="120" width="40" height="84" rx="6" fill="#fff"/><rect x="120" y="120" width="40" height="18" rx="6" fill="#FFC425"/><path d="M130 158h20M130 168h14"/>
+  <rect x="172" y="122" width="22" height="16" rx="3" fill="#fff"/><path d="M174 138h18v8l10 8v50h-38v-50l10-8z" fill="#C9772B"/><rect x="170" y="164" width="26" height="22" rx="2" fill="#fff"/>
+  <path d="M326 150l40-16 40 16v54h-80z" fill="#fff"/><path d="M326 150l40 16 40-16M366 166v38"/><path d="M366 166l40-16v54h-40z" fill="#FFC425"/>
+  <rect x="418" y="146" width="38" height="58" rx="6" fill="#FFF3CC"/><path d="M428 164h18M428 174h12"/>
+  <rect x="238" y="150" width="44" height="12" rx="4" fill="#FFC425"/><path d="M242 162h36v34a8 8 0 0 1-8 8h-20a8 8 0 0 1-8-8z" fill="#fff"/><circle cx="252" cy="182" r="5" fill="#FFC425"/><circle cx="266" cy="190" r="4" fill="#FFC425"/><circle cx="268" cy="176" r="3.5" fill="#FFF3CC"/>
+  <!-- bottom shelf items -->
+  <rect x="64" y="262" width="64" height="70" rx="6" fill="#E6E9EF"/><circle cx="84" cy="284" r="7" fill="#FFC425"/><circle cx="108" cy="284" r="7" fill="#fff"/><circle cx="84" cy="310" r="7" fill="#FFC425"/><circle cx="108" cy="310" r="7" fill="#FFC425"/>
+  <rect x="142" y="238" width="30" height="14" rx="3" fill="#FFC425"/><path d="M144 252h26l4 8v72h-34v-72z" fill="#fff"/><rect x="144" y="276" width="26" height="24" rx="2" fill="#FFF3CC"/>
+  <rect x="186" y="238" width="30" height="14" rx="3" fill="#FFC425"/><path d="M188 252h26l4 8v72h-34v-72z" fill="#fff"/><rect x="188" y="276" width="26" height="24" rx="2" fill="#FFF3CC"/>
+  <rect x="300" y="256" width="96" height="76" rx="6" fill="#FFC425"/><rect x="312" y="270" width="72" height="22" rx="3" fill="#fff"/><path d="M348 302v20M338 312h20" stroke-width="4"/>
+  <rect x="410" y="270" width="52" height="62" rx="6" fill="#fff"/><path d="M420 288h32M420 300h22"/>
+  <!-- counter -->
+  <rect x="16" y="354" width="488" height="30" rx="8" fill="#FFC425"/>
+</svg>
