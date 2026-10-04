@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Order')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+<div th:replace="~{fragments :: flash}"></div>
+<div class="sc-head">
+  <div><h3>Order <span th:text="'#' + ${o.id}"></span></h3>
+    <p>Placed <span th:text="${#temporals.format(o.createdAt,'dd MMM yyyy, HH:mm')}"></span></p></div>
+  <a class="btn btn-outline-secondary" th:href="@{/customer/orders}"><i class="bi bi-arrow-left"></i> All orders</a>
+</div>
+
+<div class="alert alert-danger" th:if="${o.status.name() == 'REJECTED'}">This order was rejected because its prescription wasn't approved. The medicines have been returned to stock<span th:if="${o.paymentStatus.name() == 'REFUNDED'}"> and your payment has been refunded</span>.</div>
+
+<div class="card mb-3" th:unless="${o.status.name() == 'REJECTED'}"><div class="card-body pb-2">
+  <ol class="sc-steps mb-2" aria-label="Order progress">
+    <th:block th:each="s : ${T(com.smartcare.model.OrderStatus).values()}">
+      <li th:unless="${s.name() == 'REJECTED'}" th:classappend="${s.ordinal() <= o.status.ordinal()} ? 'done'"
+          th:attr="aria-current=${s == o.status} ? 'step' : null"
+          th:text="${#strings.capitalize(#strings.toLowerCase(s.name()))}"></li>
+    </th:block>
+  </ol>
+</div></div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card h-100"><div class="card-body">
+    <h5 class="mb-3">Order details</h5>
+    <dl class="sc-kv mb-0">
+      <dt>Payment</dt><dd><span th:text="${o.paymentMethod.name() == 'COD' ? 'Cash on delivery' : (o.paymentMethod.name() == 'CARD' ? 'Card' : 'Mobile payment')}"></span>
+        <span class="status ms-1" th:classappend="'st-' + ${o.paymentStatus}" th:text="${#strings.capitalize(#strings.toLowerCase(o.paymentStatus.name()))}"></span></dd>
+      <dt>Deliver to</dt><dd th:text="${o.deliveryAddress}"></dd>
+      <th:block th:if="${o.prescription != null}"><dt>Prescription</dt><dd>#<span th:text="${o.prescription.id}"></span>
+        <span class="status ms-1" th:classappend="'st-' + ${o.prescription.status}" th:text="${#strings.capitalize(#strings.toLowerCase(o.prescription.status.name()))}"></span></dd></th:block>
+    </dl>
+  </div></div></div>
+  <div class="col-md-6"><div class="card h-100"><div class="card-body">
+    <h5 class="mb-3">Delivery</h5>
+    <dl class="sc-kv mb-0">
+      <dt>Status</dt><dd><span class="status" th:classappend="'st-' + ${o.deliveryStatus}" th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(o.deliveryStatus.name(),'_',' ')))}"></span></dd>
+      <th:block th:if="${o.deliveryStaff != null}"><dt>Courier</dt><dd th:text="${o.deliveryStaff.fullName}"></dd></th:block>
+      <th:block th:if="${o.deliveryIssue != null}"><dt>Problem</dt><dd class="text-danger" th:text="${o.deliveryIssue}"></dd></th:block>
+    </dl>
+    <div th:if="${o.status.name() == 'DISPATCHED'}" class="sc-otp">Your delivery code
+      <strong th:text="${o.deliveryOtp}">0000</strong>
+      <small>Tell this code to the courier when you receive your order. Don't share it before then.</small></div>
+  </div></div></div>
+</div>
+
+<div class="table-responsive mt-3"><table class="table align-middle">
+  <thead><tr><th>Medicine</th><th class="text-end">Qty</th><th class="text-end">Unit price</th><th class="text-end">Subtotal</th></tr></thead>
+  <tbody><tr th:each="i : ${o.items}">
+    <td><div class="d-flex align-items-center gap-2">
+      <span class="sc-thumb" th:classappend="${i.medicine.tone}">
+        <img th:if="${i.medicine.imageFile != null}" class="photo" th:src="@{/images/medicines/{id}(id=${i.medicine.id})}" alt="">
+        <img th:unless="${i.medicine.imageFile != null}" class="art" th:src="@{/img/packs/{a}.svg(a=${i.medicine.artwork})}" alt=""></span>
+      <span th:text="${i.medicine.name}"></span></div></td>
+    <td class="text-end" th:text="${i.quantity}"></td>
+    <td class="text-end" th:text="${#numbers.formatDecimal(i.unitPrice,1,'COMMA',2,'POINT')}"></td>
+    <td class="text-end" th:text="${#numbers.formatDecimal(i.subtotal,1,'COMMA',2,'POINT')}"></td></tr></tbody>
+  <tfoot><tr><th colspan="3" class="text-end">Total (LKR)</th><th class="text-end fs-5" th:text="${#numbers.formatDecimal(o.total,1,'COMMA',2,'POINT')}"></th></tr></tfoot></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
