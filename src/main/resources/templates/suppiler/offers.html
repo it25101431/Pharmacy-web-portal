@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('My product catalogue')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="sc-head">
+        <div><h3>My product catalogue</h3>
+            <p>Products you offer the pharmacy. The store manager sees available items when choosing a supplier.</p></div>
+        <a class="btn btn-success" th:href="@{/supplier/offers/new}"><i class="bi bi-plus-lg"></i> Add product</a>
+    </div>
+
+    <div th:if="${items.empty}" class="sc-empty">
+        <img th:src="@{/img/packs/box.svg}" alt="">
+        <h5>You haven't listed any products yet</h5>
+        <p class="mb-3">Add what you can supply, with your price and lead time.</p>
+        <a class="btn btn-success" th:href="@{/supplier/offers/new}">Add your first product</a>
+    </div>
+
+    <div class="table-responsive" th:unless="${items.empty}">
+        <table class="table align-middle">
+            <thead><tr><th>Product</th><th>Manufacturer</th><th class="text-end">Unit price</th><th class="text-end">Min qty</th>
+                <th class="text-end">Lead time</th><th>Price valid to</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="o : ${items}" th:classappend="${o.priceExpired} ? 'table-warning'">
+                <td><strong th:text="${o.productName}"></strong>
+                    <div class="small text-muted" th:if="${o.genericName != null and !o.genericName.isEmpty()}" th:text="${o.genericName}"></div></td>
+                <td th:text="${o.manufacturer}"></td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(o.unitPrice,1,'COMMA',2,'POINT')}"></td>
+                <td class="text-end" th:text="${o.minOrderQty}"></td>
+                <td class="text-end"><span th:text="${o.leadTimeDays}"></span> d</td>
+                <td class="text-nowrap"><span th:text="${o.priceValidUntil}"></span>
+                    <span class="badge bg-warning text-dark" th:if="${o.priceExpired}">Expired</span></td>
+                <td><span class="status" th:classappend="${o.available} ? 'st-DELIVERED' : 'st-REJECTED'"
+                          th:text="${o.available} ? 'Available' : 'Unavailable'"></span></td>
+                <td class="text-nowrap">
+                    <form class="d-inline" method="post" th:action="@{/supplier/offers/{id}/toggle(id=${o.id})}">
+                        <button class="btn btn-sm btn-outline-secondary" th:title="${o.available} ? 'Mark unavailable' : 'Mark available'">
+                            <i class="bi" th:classappend="${o.available} ? 'bi-pause' : 'bi-play'"></i></button></form>
+                    <a class="btn btn-sm btn-outline-secondary sc-icon" th:href="@{/supplier/offers/{id}/edit(id=${o.id})}" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <form class="d-inline" method="post" th:action="@{/supplier/offers/{id}/delete(id=${o.id})}"
+                          onsubmit="return confirm('Delete this product from your catalogue? This cannot be undone.')">
+                        <button class="btn btn-sm btn-outline-danger sc-icon" title="Delete"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
