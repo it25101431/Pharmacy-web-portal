@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Users')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<div class="d-flex justify-content-between align-items-center mb-3"><h3 class="mb-0">Users &amp; Roles</h3><a class="btn btn-success" th:href="@{/admin/users/new}">+ Create staff account</a></div>
+<div class="table-responsive"><table class="table bg-white align-middle">
+  <thead><tr><th>Username</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody><tr th:each="u : ${users}" th:classappend="${u.status.name() == 'PENDING'} ? 'table-warning'">
+    <td th:text="${u.username}"></td><td th:text="${u.fullName}"></td><td th:text="${u.email}"></td><td th:text="${u.role}"></td>
+    <td><span class="badge bg-secondary" th:text="${u.status}"></span></td>
+    <td>
+      <div th:if="${u.status.name() == 'PENDING'}" class="d-flex gap-1 flex-wrap">
+        <form class="d-flex gap-1" method="post" th:action="@{/admin/users/{id}/approve(id=${u.id})}">
+          <select name="role" class="form-select form-select-sm"><option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${r == u.role}"></option></select>
+          <button class="btn btn-sm btn-success">Approve</button></form>
+        <form method="post" th:action="@{/admin/users/{id}/reject(id=${u.id})}"><button class="btn btn-sm btn-outline-danger">Reject</button></form>
+      </div>
+      <div th:if="${u.status.name() != 'PENDING' and u.id != meId}" class="d-flex gap-1 flex-wrap">
+        <form class="d-flex gap-1" method="post" th:action="@{/admin/users/{id}/role(id=${u.id})}">
+          <select name="role" class="form-select form-select-sm"><option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${r == u.role}"></option></select>
+          <button class="btn btn-sm btn-outline-primary">Set role</button></form>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin/users/{id}/edit(id=${u.id})}">Edit</a>
+        <form th:if="${u.status.name() == 'ACTIVE'}" method="post" th:action="@{/admin/users/{id}/status(id=${u.id})}"><input type="hidden" name="status" value="DEACTIVATED"><button class="btn btn-sm btn-outline-danger">Deactivate</button></form>
+        <form th:unless="${u.status.name() == 'ACTIVE'}" method="post" th:action="@{/admin/users/{id}/status(id=${u.id})}"><input type="hidden" name="status" value="ACTIVE"><button class="btn btn-sm btn-outline-success">Activate</button></form>
+      </div>
+      <!-- Permanent delete is offered only for accounts with no history. Anyone
+           who has orders, prescriptions, purchase orders or deliveries must be
+           deactivated instead, so the pharmacy's records stay intact. -->
+      <form th:if="${deletable.contains(u.id)}" class="mt-1" method="post"
+            th:action="@{/admin/users/{id}/delete(id=${u.id})}" th:data-username="${u.username}"
+            onsubmit="return confirm('Permanently delete ' + this.dataset.username + '? This cannot be undone.')">
+        <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Delete</button>
+      </form>
+      <div th:if="${u.id != meId and !deletable.contains(u.id)}" class="small text-muted mt-1">
+        Has records — deactivate instead of deleting
+      </div>
+      <span th:if="${u.id == meId}" class="text-muted small">(you)</span>
+    </td></tr></tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

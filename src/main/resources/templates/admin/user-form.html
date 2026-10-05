@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Account')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<h3 th:text="${u.id == null} ? 'Create staff account' : 'Edit account'"></h3>
+<form class="card card-body row g-3 mx-0" method="post" th:action="@{/admin/users/save}">
+  <input type="hidden" name="id" th:value="${u.id}">
+  <div class="col-md-6"><label class="form-label">Username</label><input name="username" class="form-control" th:value="${u.username}" th:readonly="${u.id != null}" required></div>
+  <div class="col-md-6"><label class="form-label">Password <span class="text-muted small" th:if="${u.id != null}">(leave blank to keep)</span></label><input type="password" name="password" class="form-control" th:required="${u.id == null}"></div>
+  <div class="col-md-6"><label class="form-label">Full name</label><input name="fullName" class="form-control" th:value="${u.fullName}" required></div>
+  <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control" th:value="${u.email}" required></div>
+  <div class="col-md-6"><label class="form-label">Phone</label><input name="phone" class="form-control" th:value="${u.phone}"></div>
+  <div class="col-md-6"><label class="form-label">Role</label><select name="role" class="form-select"><option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${r == u.role}"></option></select></div>
+  <div class="col-12"><label class="form-label">Address</label><input name="address" class="form-control" th:value="${u.address}"></div>
+  <div class="col-12"><button class="btn btn-success">Save</button> <a class="btn btn-link" th:href="@{/admin/users}">Cancel</a></div>
+</form>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
