@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Prescriptions')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<h3>My Prescriptions</h3>
+<form class="card card-body mb-4" method="post" enctype="multipart/form-data" th:action="@{/customer/prescriptions(_csrf=${_csrf.token})}">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-4"><label class="form-label">Prescription file (JPG, PNG or PDF, max 5 MB)</label><input type="file" name="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf" required></div>
+    <div class="col-md-4"><label class="form-label">Doctor name (optional)</label><input name="doctorName" class="form-control" maxlength="100"></div>
+    <div class="col-md-4"><button class="btn btn-success">Upload</button></div>
+  </div>
+</form>
+<div class="table-responsive"><table class="table bg-white align-middle">
+  <thead><tr><th>#</th><th>File</th><th>Doctor</th><th>Uploaded</th><th>Status</th><th>Pharmacist note</th><th></th></tr></thead>
+  <tbody>
+    <tr th:if="${items.empty}"><td colspan="7" class="text-center text-muted">No prescriptions uploaded.</td></tr>
+    <!-- One loop wraps BOTH rows, so the edit row below can still see "p".
+         Previously th:each sat on the display row alone, which put the edit row
+         outside the loop and made "p" undefined there. -->
+    <th:block th:each="p : ${items}">
+    <tr><td th:text="${p.id}"></td>
+      <td><a th:href="@{/files/prescriptions/{id}(id=${p.id})}" target="_blank" th:text="${p.originalName}"></a></td>
+      <td th:text="${p.doctorName}"></td><td th:text="${#temporals.format(p.uploadedAt,'dd MMM yyyy HH:mm')}"></td>
+      <td><span class="badge" th:classappend="${p.status.name() == 'APPROVED'} ? 'bg-success' : (${p.status.name() == 'REJECTED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${p.status}"></span></td>
+      <td th:text="${p.pharmacistNote}"></td>
+      <td class="text-nowrap">
+        <th:block th:if="${p.status.name() == 'PENDING'}">
+          <button class="btn btn-sm btn-outline-secondary sc-icon" type="button" data-bs-toggle="collapse"
+                  th:attr="data-bs-target='#edit-' + ${p.id}" title="Edit prescription"><i class="bi bi-pencil"></i></button>
+          <form class="d-inline" method="post" th:action="@{/customer/prescriptions/{id}/delete(id=${p.id})}"
+                onsubmit="return confirm('Withdraw this prescription? The uploaded file will be deleted.')">
+            <button class="btn btn-sm btn-outline-danger sc-icon" title="Withdraw prescription"><i class="bi bi-trash"></i></button>
+          </form>
+        </th:block>
+      </td></tr>
+    <!-- Inline edit: only offered while the pharmacist has not yet reviewed it.
+         The CSRF token goes in the URL because this form uploads a file. -->
+    <tr th:if="${p.status.name() == 'PENDING'}" class="collapse" th:id="'edit-' + ${p.id}">
+      <td colspan="7" class="bg-light">
+        <form method="post" enctype="multipart/form-data" class="row g-2 align-items-end"
+              th:action="@{/customer/prescriptions/{id}(id=${p.id},_csrf=${_csrf.token})}">
+          <div class="col-md-4">
+            <label class="form-label">Doctor's name</label>
+            <input name="doctorName" class="form-control form-control-sm" maxlength="100" th:value="${p.doctorName}">
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Replace the file (optional)</label>
+            <input type="file" name="file" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.pdf">
+            <div class="form-text">Leave empty to keep the current file.</div>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-sm btn-success">Save changes</button>
+          </div>
+        </form>
+      </td></tr>
+    </th:block>
+  </tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

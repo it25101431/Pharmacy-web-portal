@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('My Orders')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<div class="sc-head"><div><h3>My orders</h3><p>Track where each order is and find your delivery code.</p></div></div>
+<div class="table-responsive"><table class="table align-middle">
+  <thead><tr><th>Order</th><th>Date</th><th>Total (LKR)</th><th>Payment</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    <tr th:if="${items.empty}"><td colspan="6" class="text-center text-muted py-5">No orders yet. <a th:href="@{/customer/medicines}">Browse the shop</a> to place your first one.</td></tr>
+    <tr th:each="o : ${items}"><td th:text="'#' + ${o.id}"></td><td th:text="${#temporals.format(o.createdAt,'dd MMM yyyy HH:mm')}"></td>
+      <td th:text="${#numbers.formatDecimal(o.total,1,'COMMA',2,'POINT')}"></td>
+      <td th:text="${o.paymentMethod} + ' / ' + ${o.paymentStatus}"></td>
+      <td><span class="status" th:classappend="'st-' + ${o.status}" th:text="${#strings.capitalize(#strings.toLowerCase(o.status.name()))}"></span></td>
+      <td><a class="btn btn-sm btn-outline-success" th:href="@{/customer/orders/{id}(id=${o.id})}">Track order</a></td></tr>
+  </tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

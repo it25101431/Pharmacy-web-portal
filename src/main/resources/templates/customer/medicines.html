@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Shop')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+<div th:replace="~{fragments :: flash}"></div>
+
+<section class="sc-hero">
+  <div>
+    <h1>What do you need today?</h1>
+    <p>Search by brand or generic name. Prescription medicines are checked by our pharmacist before they're sent.</p>
+    <form class="sc-search" method="get" th:action="@{/customer/medicines}" role="search">
+      <input class="form-control" name="q" th:value="${q}" placeholder="Paracetamol, cetirizine, ORS…" aria-label="Search medicines">
+      <input type="hidden" name="category" th:value="${category}">
+      <button class="btn"><i class="bi bi-search"></i> Search</button>
+    </form>
+  </div>
+  <img th:src="@{/img/shelf.svg}" alt="">
+</section>
+
+<nav class="sc-chips" aria-label="Categories">
+    <a class="sc-chip" th:classappend="${category == null or category.isEmpty()} ? 'on'" th:href="@{/customer/medicines(q=${q})}">All</a>
+    <a class="sc-chip" th:each="c : ${categories}" th:classappend="${c == category} ? 'on'" th:href="@{/customer/medicines(q=${q},category=${c})}" th:text="${c}">Category</a>
+</nav>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <p class="text-muted mb-0"><th:block th:unless="${meds.empty}"><span th:text="${meds.size()}">0</span> medicines<span th:if="${q != null and !q.isEmpty()}"> matching “<strong th:text="${q}"></strong>”</span></th:block></p>
+  <a class="btn btn-outline-secondary" th:href="@{/customer/cart}"><i class="bi bi-bag"></i> Cart (<span th:text="${cartCount}">0</span>)</a>
+</div>
+
+<div th:if="${meds.empty}" class="sc-empty mt-3">
+  <img th:src="@{/img/packs/box.svg}" alt="">
+  <h5>No medicines match that search</h5>
+  <p class="mb-3">Try a generic name (for example “paracetamol”), or clear the category filter.</p>
+  <a class="btn btn-outline-secondary" th:href="@{/customer/medicines}">Show all medicines</a>
+</div>
+
+<div class="sc-grid">
+  <article class="sc-product" th:each="m : ${meds}">
+    <div class="pic" th:classappend="${m.tone}">
+      <img th:if="${m.imageFile != null}" class="photo" th:src="@{/images/medicines/{id}(id=${m.id})}" th:alt="${m.name}">
+      <img th:unless="${m.imageFile != null}" class="art" th:src="@{/img/packs/{a}.svg(a=${m.artwork})}" alt="">
+      <span class="rx" th:if="${m.prescriptionRequired}">Prescription only</span>
+    </div>
+    <div class="body">
+      <div class="name" th:text="${m.name}">Name</div>
+      <div class="meta"><span th:text="${m.genericName}"></span><span th:if="${m.dosageForm != null and !m.dosageForm.isEmpty()}" th:text="', ' + ${#strings.toLowerCase(m.dosageForm)}"></span></div>
+      <div class="price"><small>LKR</small><span th:text="${#numbers.formatDecimal(m.price,1,'COMMA',2,'POINT')}"></span></div>
+      <div class="stock" th:if="${m.stock > 0 and !m.expired}"><i class="bi bi-check2"></i> In stock (<span th:text="${m.stock}"></span>)</div>
+      <div class="stock none" th:if="${m.stock == 0 or m.expired}">Currently unavailable</div>
+      <form method="post" th:action="@{/customer/cart/add}" th:if="${m.stock > 0 and !m.expired}">
+        <input type="hidden" name="id" th:value="${m.id}">
+        <input type="number" name="qty" value="1" min="1" th:max="${m.stock}" class="form-control" th:aria-label="'Quantity of ' + ${m.name}">
+        <button class="btn btn-success"><i class="bi bi-bag-plus"></i> Add</button>
+      </form>
+    </div>
+  </article>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
