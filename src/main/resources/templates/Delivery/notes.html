@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('My delivery notes')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="sc-head">
+        <div><h3>My delivery notes</h3>
+            <p>Your own log against the orders you carry: attempted visits, customer instructions, delays.</p></div>
+        <a class="btn btn-success" th:href="@{/delivery/notes/new}"><i class="bi bi-plus-lg"></i> Add note</a>
+    </div>
+
+    <div th:if="${items.empty}" class="sc-empty">
+        <img th:src="@{/img/packs/box.svg}" alt="">
+        <h5>No notes yet</h5>
+        <p class="mb-3">Log an attempted visit or a customer instruction so the next attempt goes smoothly.</p>
+        <a class="btn btn-success" th:href="@{/delivery/notes/new}">Write your first note</a>
+    </div>
+
+    <div class="table-responsive" th:unless="${items.empty}">
+        <table class="table align-middle">
+            <thead><tr><th>Order</th><th>Type</th><th>Note</th><th>Written</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="n : ${items}">
+                <td class="text-nowrap">#<span th:text="${n.order.id}"></span></td>
+                <td class="text-nowrap"><span class="status" th:text="${n.typeLabel}"></span></td>
+                <td th:text="${n.note}"></td>
+                <td class="text-nowrap small text-muted" th:text="${#temporals.format(n.createdAt,'dd MMM, HH:mm')}"></td>
+                <td class="text-nowrap">
+                    <a class="btn btn-sm btn-outline-secondary sc-icon" th:href="@{/delivery/notes/{id}/edit(id=${n.id})}" title="Edit note"><i class="bi bi-pencil"></i></a>
+                    <form class="d-inline" method="post" th:action="@{/delivery/notes/{id}/delete(id=${n.id})}" onsubmit="return confirm('Delete this note?')">
+                        <button class="btn btn-sm btn-outline-danger sc-icon" title="Delete note"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
