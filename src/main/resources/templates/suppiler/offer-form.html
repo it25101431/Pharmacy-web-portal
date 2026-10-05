@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Product')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="sc-head">
+        <div><h3 th:text="${offer.id == null} ? 'Add product' : 'Edit ' + ${offer.productName}">Product</h3>
+            <p>Your price and lead time help the store manager choose between suppliers.</p></div>
+        <a class="btn btn-outline-secondary" th:href="@{/supplier/offers}"><i class="bi bi-arrow-left"></i> Back to catalogue</a>
+    </div>
+
+    <form method="post" th:object="${offer}"
+          th:action="${offer.id == null} ? @{/supplier/offers} : @{/supplier/offers/{id}(id=${offer.id})}">
+        <div class="card"><div class="card-body row g-3">
+            <div class="col-md-6"><label class="form-label" for="productName">Product name</label>
+                <input type="text" class="form-control" th:field="*{productName}" placeholder="Paracetamol 500mg">
+                <div class="text-danger small" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></div></div>
+            <div class="col-md-6"><label class="form-label" for="genericName">Generic name</label>
+                <input type="text" class="form-control" th:field="*{genericName}"></div>
+            <div class="col-md-6"><label class="form-label" for="manufacturer">Manufacturer</label>
+                <input type="text" class="form-control" th:field="*{manufacturer}"></div>
+            <div class="col-md-6"><label class="form-label" for="unitPrice">Unit price (LKR)</label>
+                <input type="number" step="0.01" min="0.01" class="form-control" th:field="*{unitPrice}">
+                <div class="text-danger small" th:if="${#fields.hasErrors('unitPrice')}" th:errors="*{unitPrice}"></div></div>
+            <div class="col-md-4"><label class="form-label" for="minOrderQty">Minimum order quantity</label>
+                <input type="number" min="1" class="form-control" th:field="*{minOrderQty}">
+                <div class="text-danger small" th:if="${#fields.hasErrors('minOrderQty')}" th:errors="*{minOrderQty}"></div></div>
+            <div class="col-md-4"><label class="form-label" for="leadTimeDays">Lead time (days)</label>
+                <input type="number" min="0" max="365" class="form-control" th:field="*{leadTimeDays}">
+                <div class="text-danger small" th:if="${#fields.hasErrors('leadTimeDays')}" th:errors="*{leadTimeDays}"></div></div>
+            <div class="col-md-4"><label class="form-label" for="priceValidUntil">Price valid until</label>
+                <input type="date" class="form-control" th:field="*{priceValidUntil}"></div>
+            <div class="col-12"><label class="form-label" for="notes">Notes</label>
+                <input type="text" class="form-control" th:field="*{notes}" placeholder="Cold chain required, bulk discount over 500 units...">
+                <div class="text-danger small" th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}"></div></div>
+            <div class="col-12"><div class="form-check">
+                <input type="checkbox" class="form-check-input" id="available" th:field="*{available}">
+                <label class="form-check-label" for="available">Available to order now</label></div></div>
+        </div></div>
+        <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-success px-4"><i class="bi bi-check-lg"></i> Save product</button>
+            <a class="btn btn-link" th:href="@{/supplier/offers}">Cancel</a>
+        </div>
+    </form>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
