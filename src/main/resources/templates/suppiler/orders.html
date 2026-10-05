@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Purchase Orders')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments :: flash}"></div>
+    <h3>Purchase Orders</h3>
+    <div class="table-responsive"><table class="table bg-white align-middle">
+        <thead><tr><th>PO</th><th>Medicine</th><th>Qty</th><th>Created</th><th>Due</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+        <tbody><tr th:if="${items.empty}"><td colspan="8" class="text-center text-muted">No purchase orders yet.</td></tr>
+        <tr th:each="p : ${items}"><td th:text="'#' + ${p.id}"></td><td th:text="${p.medicine.name}"></td><td th:text="${p.quantity}"></td>
+            <td th:text="${#temporals.format(p.createdAt,'dd MMM yyyy')}"></td><td th:text="${p.dueDate}"></td>
+            <td><span class="badge bg-secondary" th:text="${p.status}"></span></td>
+            <td><span class="badge" th:classappend="${p.paymentStatus.name() == 'PAID'} ? 'bg-success' : (${p.paymentStatus.name() == 'PARTIAL'} ? 'bg-info text-dark' : 'bg-warning text-dark')" th:text="${p.paymentStatus}"></span></td>
+            <td th:if="${p.status.name() != 'DELIVERED'}" class="text-nowrap">
+                <form class="d-inline" method="post" th:action="@{/supplier/orders/{id}/availability(id=${p.id})}"><input type="hidden" name="status" value="IN_STOCK"><button class="btn btn-sm btn-outline-success">In stock</button></form>
+                <form class="d-inline" method="post" th:action="@{/supplier/orders/{id}/availability(id=${p.id})}"><input type="hidden" name="status" value="OUT_OF_STOCK"><button class="btn btn-sm btn-outline-danger">Out of stock</button></form>
+                <form class="d-inline" method="post" th:action="@{/supplier/orders/{id}/deliver(id=${p.id})}"><button class="btn btn-sm btn-success" th:disabled="${p.status.name() != 'IN_STOCK'}">Confirm delivery</button></form></td>
+            <td th:unless="${p.status.name() != 'DELIVERED'}" th:text="${#temporals.format(p.deliveredAt,'dd MMM yyyy HH:mm')}"></td></tr></tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
