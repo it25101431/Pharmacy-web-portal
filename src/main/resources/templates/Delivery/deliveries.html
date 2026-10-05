@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('My Deliveries')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments :: flash}"></div>
+    <h3>My Deliveries</h3>
+    <div th:if="${items.empty}" class="alert alert-info">No deliveries assigned to you.</div>
+    <div class="row g-3">
+        <div class="col-12 col-lg-6" th:each="o : ${items}"><div class="card h-100"><div class="card-body">
+            <div class="d-flex justify-content-between"><h5 th:text="'Order #' + ${o.id}"></h5><span class="badge bg-info text-dark" th:text="${o.deliveryStatus}"></span></div>
+            <div><strong th:text="${o.customer.fullName}"></strong> &middot; <span th:text="${o.customer.phone}"></span></div>
+            <div class="mb-1" th:text="${o.deliveryAddress}"></div>
+            <div class="mb-2 small">Payment: <span th:text="${o.paymentMethod} + ' / ' + ${o.paymentStatus}"></span><span th:if="${o.paymentStatus.name() == 'PENDING'}"> &mdash; collect LKR <strong th:text="${#numbers.formatDecimal(o.total,1,'COMMA',2,'POINT')}"></strong></span></div>
+            <div class="text-danger small mb-2" th:if="${o.deliveryIssue != null}" th:text="'Issue: ' + ${o.deliveryIssue}"></div>
+            <div th:if="${o.deliveryStatus.name() != 'DELIVERED'}">
+                <div class="d-flex gap-2 mb-2">
+                    <form method="post" th:action="@{/delivery/deliveries/{id}/status(id=${o.id})}"><input type="hidden" name="status" value="PICKED_UP"><button class="btn btn-sm btn-outline-primary">Picked up</button></form>
+                    <form method="post" th:action="@{/delivery/deliveries/{id}/status(id=${o.id})}"><input type="hidden" name="status" value="OUT_FOR_DELIVERY"><button class="btn btn-sm btn-outline-primary">Out for delivery</button></form>
+                </div>
+                <form class="d-flex gap-2 mb-2" method="post" th:action="@{/delivery/deliveries/{id}/confirm(id=${o.id})}">
+                    <input name="otp" class="form-control form-control-sm" placeholder="Customer OTP" maxlength="4" required style="max-width:140px"><button class="btn btn-sm btn-success">Confirm delivery</button></form>
+                <form class="d-flex gap-2" method="post" th:action="@{/delivery/deliveries/{id}/issue(id=${o.id})}">
+                    <input name="reason" class="form-control form-control-sm" maxlength="250" placeholder="Issue (wrong address, customer unavailable...)" required><button class="btn btn-sm btn-outline-danger">Report</button></form>
+            </div>
+            <div th:if="${o.deliveryStatus.name() == 'DELIVERED'}" class="text-success">Delivered <span th:text="${#temporals.format(o.deliveredAt,'dd MMM HH:mm')}"></span></div>
+        </div></div></div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
