@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Reports')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<h3>Reports</h3>
+<form class="row g-2 mb-3" method="get" th:action="@{/admin/reports}">
+  <div class="col-auto"><label class="form-label small mb-0">From</label><input type="date" name="from" class="form-control" th:value="${from}"></div>
+  <div class="col-auto"><label class="form-label small mb-0">To</label><input type="date" name="to" class="form-control" th:value="${to}"></div>
+  <div class="col-auto align-self-end"><button class="btn btn-success">Generate</button></div>
+  <div class="col-auto align-self-end"><a class="btn btn-outline-secondary" th:href="@{/admin/reports/sales.csv(from=${from},to=${to})}">Export sales CSV</a>
+    <a class="btn btn-outline-secondary" th:href="@{/admin/reports/inventory.csv}">Export inventory CSV</a></div>
+</form>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="card card-body"><div class="text-muted small">Orders (excl. rejected)</div><div class="fs-4" th:text="${orders.size()}"></div></div></div>
+  <div class="col-6 col-md-3"><div class="card card-body"><div class="text-muted small">Revenue (LKR)</div><div class="fs-4" th:text="${#numbers.formatDecimal(revenue,1,'COMMA',2,'POINT')}"></div></div></div>
+  <div class="col-6 col-md-3"><div class="card card-body"><div class="text-muted small">Prescription orders</div><div class="fs-4" th:text="${rxOrders}"></div></div></div>
+  <div class="col-6 col-md-3"><div class="card card-body"><div class="text-muted small">Stock value (LKR)</div><div class="fs-4" th:text="${#numbers.formatDecimal(stockValue,1,'COMMA',2,'POINT')}"></div></div></div>
+</div>
+<h5>Top selling medicines</h5>
+<ul class="list-group mb-4"><li class="list-group-item" th:if="${top.isEmpty()}">No sales in this period.</li>
+  <li class="list-group-item d-flex justify-content-between" th:each="e : ${top}"><span th:text="${e.key}"></span><span class="badge bg-success" th:text="${e.value} + ' units'"></span></li></ul>
+<h5>Sales</h5>
+<div class="table-responsive mb-4"><table class="table table-sm bg-white">
+  <thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Status</th><th>Payment</th><th>Total</th></tr></thead>
+  <tbody><tr th:each="o : ${orders}"><td th:text="${o.id}"></td><td th:text="${#temporals.format(o.createdAt,'dd MMM yyyy')}"></td><td th:text="${o.customer.fullName}"></td>
+    <td th:text="${o.status}"></td><td th:text="${o.paymentMethod} + ' / ' + ${o.paymentStatus}"></td><td th:text="${#numbers.formatDecimal(o.total,1,'COMMA',2,'POINT')}"></td></tr></tbody></table></div>
+<h5>Inventory</h5>
+<div class="table-responsive"><table class="table table-sm bg-white">
+  <thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Reorder level</th><th>Expiry</th><th>Price</th></tr></thead>
+  <tbody><tr th:each="m : ${inventory}" th:classappend="${m.lowStock} ? 'table-warning'"><td th:text="${m.name}"></td><td th:text="${m.category}"></td><td th:text="${m.stock}"></td>
+    <td th:text="${m.reorderLevel}"></td><td th:text="${m.expiryDate}"></td><td th:text="${#numbers.formatDecimal(m.price,1,'COMMA',2,'POINT')}"></td></tr></tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
