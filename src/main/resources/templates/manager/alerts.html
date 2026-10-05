@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Low Stock')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments :: flash}"></div>
+    <h3>Low-stock Alerts &amp; Reorder</h3>
+    <div th:if="${lowStock.empty}" class="alert alert-success">All medicines are above their reorder level.</div>
+    <div class="table-responsive" th:unless="${lowStock.empty}"><table class="table bg-white align-middle">
+        <thead><tr><th>Medicine</th><th>Stock</th><th>Reorder level</th><th>Create purchase order</th></tr></thead>
+        <tbody><tr th:each="m : ${lowStock}" class="table-warning"><td th:text="${m.name}"></td><td th:text="${m.stock}"></td><td th:text="${m.reorderLevel}"></td>
+            <td><form class="d-flex gap-1 flex-wrap" method="post" th:action="@{/manager/purchase-orders}">
+                <input type="hidden" name="medicineId" th:value="${m.id}">
+                <select name="supplierId" class="form-select form-select-sm" style="max-width:200px" required><option value="">Supplier...</option><option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.fullName}"></option></select>
+                <input type="number" name="quantity" min="1" th:value="${m.reorderLevel * 2}" class="form-control form-control-sm" style="width:90px" required>
+                <button class="btn btn-sm btn-success">Order</button></form></td></tr></tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
