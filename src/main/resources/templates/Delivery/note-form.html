@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Delivery note')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="sc-head">
+        <div><h3 th:text="${note.id == null} ? 'Add a delivery note' : 'Edit note'">Note</h3>
+            <p>Only you can see and change your own notes. An admin can read them when investigating a delivery issue.</p></div>
+        <a class="btn btn-outline-secondary" th:href="@{/delivery/notes}"><i class="bi bi-arrow-left"></i> Back to notes</a>
+    </div>
+
+    <form method="post" th:object="${note}"
+          th:action="${note.id == null} ? @{/delivery/notes} : @{/delivery/notes/{id}(id=${note.id})}">
+        <div class="card"><div class="card-body row g-3">
+            <div class="col-md-5">
+                <label class="form-label" for="orderId">Order</label>
+                <select class="form-select" id="orderId" name="orderId" required>
+                    <option value="" th:if="${note.id == null}">Choose one of your ordersâ€¦</option>
+                    <option th:each="o : ${myOrders}" th:value="${o.id}"
+                            th:selected="${note.order != null and note.order.id == o.id}"
+                            th:text="'#' + ${o.id} + ' â€” ' + ${o.customer.fullName}"></option>
+                </select>
+                <div class="form-text">Only orders currently assigned to you appear here.</div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="type">Type</label>
+                <select class="form-select" th:field="*{type}">
+                    <option th:each="t : ${T(com.smartcare.model.DeliveryNote.NoteType).values()}"
+                            th:value="${t}" th:text="${#strings.capitalize(#strings.toLowerCase(t.name()))}"></option>
+                </select>
+                <div class="text-danger small" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="note">Note</label>
+                <input type="text" class="form-control" th:field="*{note}" maxlength="250"
+                       placeholder="e.g. Nobody home at 2pm, neighbour asked to redeliver after 6pm">
+                <div class="text-danger small" th:if="${#fields.hasErrors('note')}" th:errors="*{note}"></div>
+            </div>
+        </div></div>
+        <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-success px-4"><i class="bi bi-check-lg"></i> Save note</button>
+            <a class="btn btn-link" th:href="@{/delivery/notes}">Cancel</a>
+        </div>
+    </form>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
