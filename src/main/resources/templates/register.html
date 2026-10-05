@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Create account')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="sc-auth">
+  <section class="sc-auth-art">
+    <h1>Join SmartCare Pharmacy.</h1>
+    <p>Customers can start ordering straight away. Pharmacist, supplier, delivery and manager accounts are checked by an administrator first.</p>
+    <img th:src="@{/img/shelf.svg}" alt="Illustration of a pharmacy shelf with medicine boxes and bottles">
+  </section>
+  <section class="sc-auth-form wide">
+    <div class="inner">
+      <div th:replace="~{fragments :: flash}"></div>
+      <h2>Create an account</h2>
+      <p class="lead-in">All fields except address are required.</p>
+      <form method="post" th:action="@{/register}" th:object="${form}" class="row g-3">
+        <div class="col-md-6"><label class="form-label" for="fullName">Full name</label>
+          <input type="text" class="form-control" th:field="*{fullName}" autocomplete="name">
+          <div class="text-danger small" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div></div>
+        <div class="col-md-6"><label class="form-label" for="role">I am a</label>
+          <select class="form-select" th:field="*{role}"><option th:each="r : ${roles}" th:value="${r}" th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(r.name(),'_',' ')))}"></option></select>
+          <div class="text-danger small" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div></div>
+        <div class="col-md-6"><label class="form-label" for="username">Username</label>
+          <input type="text" class="form-control" th:field="*{username}" autocomplete="username">
+          <div class="form-text">4–30 letters, digits, dots or underscores.</div>
+          <div class="text-danger small" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div></div>
+        <div class="col-md-6"><label class="form-label" for="password">Password</label>
+          <input type="password" class="form-control" th:field="*{password}" autocomplete="new-password">
+          <div class="form-text">At least 6 characters.</div>
+          <div class="text-danger small" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div></div>
+        <div class="col-md-6"><label class="form-label" for="email">Email</label>
+          <input type="email" class="form-control" th:field="*{email}" autocomplete="email">
+          <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div></div>
+        <div class="col-md-6"><label class="form-label" for="phone">Phone</label>
+          <input type="text" class="form-control" th:field="*{phone}" autocomplete="tel" placeholder="077 123 4567">
+          <div class="text-danger small" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div></div>
+        <div class="col-12"><label class="form-label" for="address">Delivery address</label><input class="form-control" th:field="*{address}" autocomplete="street-address"></div>
+        <div class="col-12 d-flex flex-wrap gap-3 align-items-center mt-4"><button class="btn btn-success px-4">Create account</button>
+          <span>Already registered? <a th:href="@{/login}">Sign in</a></span></div>
+      </form>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

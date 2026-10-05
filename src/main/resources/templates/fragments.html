@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' | SmartCare Pharmacy'">SmartCare</title>
+  <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:fragment="nav" class="navbar navbar-expand-lg sc-nav" th:with="p=${currentPath ?: ''}">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/home}"><img th:src="@{/img/logo.svg}" alt="">SmartCare Pharmacy</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nv" aria-controls="nv" aria-expanded="false" aria-label="Open menu"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="nv">
+      <ul class="navbar-nav me-auto ms-lg-3 gap-lg-1">
+        <th:block sec:authorize="hasRole('CUSTOMER')">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/customer/medicines')} ? 'active'" th:href="@{/customer/medicines}">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/customer/prescriptions')} ? 'active'" th:href="@{/customer/prescriptions}">Prescriptions</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/customer/orders')} ? 'active'" th:href="@{/customer/orders}">My orders</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/customer/cart')} ? 'active'" th:href="@{/customer/cart}"><i class="bi bi-bag"></i> Cart</a></li>
+        </th:block>
+        <th:block sec:authorize="hasRole('PHARMACIST')">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/pharmacist/medicines')} ? 'active'" th:href="@{/pharmacist/medicines}">Medicines</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/pharmacist/prescriptions')} ? 'active'" th:href="@{/pharmacist/prescriptions}">Prescriptions</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/pharmacist/orders')} ? 'active'" th:href="@{/pharmacist/orders}">Orders</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/pharmacist/alerts')} ? 'active'" th:href="@{/pharmacist/alerts}">Alerts</a></li>
+        </th:block>
+        <th:block sec:authorize="hasRole('ADMIN')">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/admin/users')} ? 'active'" th:href="@{/admin/users}">Users &amp; roles</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/admin/orders')} ? 'active'" th:href="@{/admin/orders}">Orders &amp; delivery</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/admin/reports')} ? 'active'" th:href="@{/admin/reports}">Reports</a></li>
+        </th:block>
+        <th:block sec:authorize="hasRole('SUPPLIER')">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/supplier')} ? 'active'" th:href="@{/supplier/orders}">Purchase orders</a></li>
+        </th:block>
+        <th:block sec:authorize="hasRole('DELIVERY_STAFF')">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/delivery/deliveries')} ? 'active'" th:href="@{/delivery/deliveries}">My deliveries</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/delivery/notes')} ? 'active'" th:href="@{/delivery/notes}">My notes</a></li>
+        </th:block>
+        <th:block sec:authorize="hasRole('STORE_MANAGER')">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/manager/dashboard')} ? 'active'" th:href="@{/manager/dashboard}">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/manager/alerts')} ? 'active'" th:href="@{/manager/alerts}">Low stock</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/manager/purchase-orders')} ? 'active'" th:href="@{/manager/purchase-orders}">Purchase orders</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/manager/supplier-offers')} ? 'active'" th:href="@{/manager/supplier-offers}">Supplier offers</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/manager/supplier-report')} ? 'active'" th:href="@{/manager/supplier-report}">Supplier report</a></li>
+        </th:block>
+      </ul>
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <th:block sec:authorize="isAuthenticated()">
+          <li class="nav-item"><a class="nav-link sc-bell" th:classappend="${#strings.startsWith(p,'/notifications')} ? 'active'" th:href="@{/notifications}" aria-label="Notifications">
+            <i class="bi bi-bell"></i><span class="d-lg-none ms-2">Notifications</span>
+            <span class="count" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">0</span></a></li>
+          <li class="nav-item py-2 py-lg-0"><span class="sc-user"><i class="bi bi-person-circle"></i><span sec:authentication="name">user</span>
+            <span class="sc-role" sec:authorize="hasRole('CUSTOMER')">Customer</span>
+            <span class="sc-role" sec:authorize="hasRole('PHARMACIST')">Pharmacist</span>
+            <span class="sc-role" sec:authorize="hasRole('ADMIN')">Admin</span>
+            <span class="sc-role" sec:authorize="hasRole('SUPPLIER')">Supplier</span>
+            <span class="sc-role" sec:authorize="hasRole('DELIVERY_STAFF')">Delivery</span>
+            <span class="sc-role" sec:authorize="hasRole('STORE_MANAGER')">Store manager</span></span></li>
+          <li class="nav-item"><form th:action="@{/logout}" method="post"><button class="btn btn-sm btn-outline-secondary"><i class="bi bi-box-arrow-right"></i> Log out</button></form></li>
+        </th:block>
+        <th:block sec:authorize="!isAuthenticated()">
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/login')} ? 'active'" th:href="@{/login}">Sign in</a></li>
+          <li class="nav-item"><a class="nav-link" th:classappend="${#strings.startsWith(p,'/register')} ? 'active'" th:href="@{/register}">Create account</a></li>
+        </th:block>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div th:fragment="flash">
+  <div class="alert alert-success d-flex gap-2 align-items-start" role="status" th:if="${msg}"><i class="bi bi-check-circle-fill"></i><span th:text="${msg}"></span></div>
+  <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert" th:if="${err}"><i class="bi bi-exclamation-circle-fill"></i><span th:text="${err}"></span></div>
+</div>
+</body>
+</html>
