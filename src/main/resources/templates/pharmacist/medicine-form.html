@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Medicine')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container">
+<div th:replace="~{fragments :: flash}"></div>
+<div class="sc-head">
+  <div><h3 th:text="${medicine.id == null} ? 'Add medicine' : 'Edit ' + ${medicine.name}">Medicine</h3>
+    <p th:text="${medicine.id == null} ? 'New medicines appear in the customer shop as soon as you save.' : 'Changes appear in the shop immediately. Stock is changed with Receive stock, not here.'"></p></div>
+  <a class="btn btn-outline-secondary" th:href="@{/pharmacist/medicines}"><i class="bi bi-arrow-left"></i> Back to medicines</a>
+</div>
+<!-- multipart form: the CSRF token must be in the URL, because it is checked before the file upload is parsed -->
+<form method="post" enctype="multipart/form-data" th:object="${medicine}"
+      th:action="${medicine.id == null} ? @{/pharmacist/medicines(_csrf=${_csrf.token})} : @{/pharmacist/medicines/{id}(id=${medicine.id},_csrf=${_csrf.token})}">
+<div class="row g-3">
+  <div class="col-lg-8"><div class="card"><div class="card-body row g-3">
+    <div class="col-md-6"><label class="form-label" for="name">Name</label><input type="text" class="form-control" th:field="*{name}"><div class="text-danger small" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="genericName">Generic name</label><input type="text" class="form-control" th:field="*{genericName}"><div class="text-danger small" th:if="${#fields.hasErrors('genericName')}" th:errors="*{genericName}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="category">Category</label><input type="text" class="form-control" th:field="*{category}" placeholder="Pain Relief"><div class="text-danger small" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="manufacturer">Manufacturer</label><input type="text" class="form-control" th:field="*{manufacturer}"><div class="text-danger small" th:if="${#fields.hasErrors('manufacturer')}" th:errors="*{manufacturer}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="dosageForm">Dosage form</label><input type="text" class="form-control" th:field="*{dosageForm}" placeholder="Tablet, Capsule, Syrup, Inhaler, Powder">
+      <div class="form-text">Also picks the shop illustration when there's no photo.</div><div class="text-danger small" th:if="${#fields.hasErrors('dosageForm')}" th:errors="*{dosageForm}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="price">Price (LKR)</label><input type="number" class="form-control" th:field="*{price}" step="0.01" min="0.01"><div class="text-danger small" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div></div>
+    <div class="col-md-6" th:if="${medicine.id == null}"><label class="form-label" for="stock">Opening stock</label><input type="number" class="form-control" th:field="*{stock}" min="0"><div class="text-danger small" th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}"></div></div>
+    <div class="col-md-6" th:unless="${medicine.id == null}"><label class="form-label">Current stock</label><input type="text" class="form-control" th:value="${medicine.stock}" readonly disabled><div class="form-text">To add stock, use <strong>Receive stock</strong> on the medicine list.</div></div>
+    <div class="col-md-6"><label class="form-label" for="reorderLevel">Low-stock alert at</label><input type="number" class="form-control" th:field="*{reorderLevel}" min="0"><div class="text-danger small" th:if="${#fields.hasErrors('reorderLevel')}" th:errors="*{reorderLevel}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="batchNo">Batch number</label><input type="text" class="form-control" th:field="*{batchNo}"><div class="text-danger small" th:if="${#fields.hasErrors('batchNo')}" th:errors="*{batchNo}"></div></div>
+    <div class="col-md-6"><label class="form-label" for="expiryDate">Expiry date</label><input type="date" class="form-control" th:field="*{expiryDate}"><div class="text-danger small" th:if="${#fields.hasErrors('expiryDate')}" th:errors="*{expiryDate}"></div></div>
+    <div class="col-12"><div class="form-check"><input type="checkbox" class="form-check-input" id="rx" th:field="*{prescriptionRequired}"><label class="form-check-label" for="rx">Prescription required (customers must upload a prescription for this medicine)</label></div></div>
+  </div></div></div>
+
+  <div class="col-lg-4"><div class="card"><div class="card-body">
+    <h5 class="mb-3">Product photo</h5>
+    <div class="sc-product mb-3" style="border:0">
+      <div class="pic rounded-4" th:classappend="${medicine.tone}">
+        <img th:if="${medicine.id != null and medicine.imageFile != null}" class="photo rounded-4" th:src="@{/images/medicines/{id}(id=${medicine.id})}" alt="Current product photo">
+        <img th:unless="${medicine.id != null and medicine.imageFile != null}" class="art" th:src="@{/img/packs/{a}.svg(a=${medicine.artwork})}" alt="Illustration used when there is no photo">
+      </div>
+    </div>
+    <label class="form-label" for="photo">Upload a photo</label>
+    <input type="file" id="photo" name="photo" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+    <div class="form-text">JPG, PNG or WEBP, up to 5 MB. A square photo of the pack on a plain background looks best. Without a photo, the shop shows an illustration.</div>
+    <div class="form-check mt-3" th:if="${medicine.id != null and medicine.imageFile != null}">
+      <input class="form-check-input" type="checkbox" id="removePhoto" name="removePhoto" value="true"><label class="form-check-label" for="removePhoto">Remove current photo</label></div>
+  </div></div></div>
+</div>
+<div class="d-flex gap-2 mt-3"><button class="btn btn-success px-4"><i class="bi bi-check-lg"></i> Save medicine</button><a class="btn btn-link" th:href="@{/pharmacist/medicines}">Cancel</a></div>
+</form>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
