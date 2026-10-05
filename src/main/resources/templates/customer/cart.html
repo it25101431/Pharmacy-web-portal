@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Cart')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+<div th:replace="~{fragments :: flash}"></div>
+<h3>Your Cart</h3>
+<div th:if="${lines.empty}" class="alert alert-info">Your cart is empty. <a th:href="@{/customer/medicines}">Browse medicines</a></div>
+<div th:unless="${lines.empty}">
+  <div class="table-responsive"><table class="table align-middle bg-white">
+    <thead><tr><th>Medicine</th><th>Unit price</th><th>Quantity</th><th>Subtotal</th><th></th></tr></thead>
+    <tbody><tr th:each="l : ${lines}">
+      <td><span th:text="${l.medicine.name}"></span> <span class="badge bg-danger" th:if="${l.medicine.prescriptionRequired}">Rx</span></td>
+      <td th:text="${#numbers.formatDecimal(l.medicine.price,1,'COMMA',2,'POINT')}"></td>
+      <td><form class="d-flex gap-1" method="post" th:action="@{/customer/cart/update}">
+        <input type="hidden" name="id" th:value="${l.medicine.id}">
+        <input type="number" name="qty" min="0" th:value="${l.quantity}" class="form-control form-control-sm" style="width:80px">
+        <button class="btn btn-sm btn-outline-primary">Update</button></form></td>
+      <td th:text="${#numbers.formatDecimal(l.subtotal,1,'COMMA',2,'POINT')}"></td>
+      <td><form method="post" th:action="@{/customer/cart/update}"><input type="hidden" name="id" th:value="${l.medicine.id}"><input type="hidden" name="qty" value="0"><button class="btn btn-sm btn-outline-danger">Remove</button></form></td>
+    </tr></tbody>
+    <tfoot><tr><th colspan="3" class="text-end">Total (LKR)</th><th th:text="${#numbers.formatDecimal(total,1,'COMMA',2,'POINT')}"></th><th></th></tr></tfoot>
+  </table></div>
+
+  <form method="post" th:action="@{/customer/checkout}" class="card card-body">
+    <h5>Checkout</h5>
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Delivery address</label><textarea name="address" class="form-control" rows="2" required th:text="${address}"></textarea></div>
+      <div class="col-md-6"><label class="form-label">Payment method</label>
+        <select name="paymentMethod" class="form-select"><option th:each="p : ${methods}" th:value="${p}" th:text="${p == T(com.smartcare.model.PaymentMethod).COD ? 'Cash on delivery' : (p == T(com.smartcare.model.PaymentMethod).CARD ? 'Card payment' : 'Mobile payment')}"></option></select>
+        <div class="form-text">Card and mobile payments are simulated (no live gateway).</div></div>
+      <div class="col-12" th:if="${needsRx}">
+        <label class="form-label">Prescription (required for prescription-only medicines)</label>
+        <select name="prescriptionId" class="form-select" required>
+          <option value="">-- select an uploaded prescription --</option>
+          <option th:each="p : ${prescriptions}" th:value="${p.id}" th:text="'#' + ${p.id} + ' - ' + ${p.originalName} + ' (' + ${p.status} + ')'"></option></select>
+        <div class="form-text">No prescription yet? <a th:href="@{/customer/prescriptions}">Upload one</a>. Orders are processed once a pharmacist approves it.</div>
+      </div>
+      <div class="col-12"><button class="btn btn-success">Place order</button></div>
+    </div>
+  </form>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
