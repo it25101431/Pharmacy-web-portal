@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Purchase Orders')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main class="container py-4">
+  <div th:replace="~{fragments :: flash}"></div>
+  <h3>Purchase Orders</h3>
+  <div class="table-responsive"><table class="table bg-white align-middle">
+    <thead><tr><th>PO</th><th>Supplier</th><th>Medicine</th><th>Qty</th><th>Due</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+    <tbody><tr th:if="${items.empty}"><td colspan="8" class="text-center text-muted">No purchase orders.</td></tr>
+    <tr th:each="p : ${items}"><td th:text="'#' + ${p.id}"></td><td th:text="${p.supplier.fullName}"></td><td th:text="${p.medicine.name}"></td><td th:text="${p.quantity}"></td>
+      <td th:text="${p.dueDate}"></td><td><span class="badge bg-secondary" th:text="${p.status}"></span></td>
+      <td><form class="d-flex gap-1" method="post" th:action="@{/manager/purchase-orders/{id}/payment(id=${p.id})}">
+        <select name="payment" class="form-select form-select-sm"><option th:each="s : ${payments}" th:value="${s}" th:text="${s}" th:selected="${s == p.paymentStatus}"></option></select>
+        <button class="btn btn-sm btn-outline-primary">Set</button></form></td>
+      <td class="text-nowrap">
+        <form class="d-inline" method="post" th:action="@{/manager/purchase-orders/{id}/cancel(id=${p.id})}"
+              th:if="${p.status.name() != 'DELIVERED' and p.paymentStatus.name() == 'PENDING'}"
+              onsubmit="return confirm('Cancel this purchase order? The supplier will be notified.')">
+          <button class="btn btn-sm btn-outline-danger sc-icon" title="Cancel purchase order"><i class="bi bi-trash"></i></button>
+        </form>
+        <span class="small text-muted" th:if="${p.status.name() == 'DELIVERED'}">Delivered</span>
+        <span class="small text-muted" th:if="${p.status.name() != 'DELIVERED' and p.paymentStatus.name() != 'PENDING'}">Paid</span>
+      </td></tr></tbody></table></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
